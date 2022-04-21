@@ -3,6 +3,9 @@ const NOT_FOUND = 404;
 const SERVER_ERROR = 500;
 const SALT_ROUNDS = 10;
 const regexLink = /(http|https):\/\/([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}/;
+const { NODE_ENV, JWT_SECRET } = process.env;
+
+const JWT = NODE_ENV === 'production' ? JWT_SECRET : 'jwt_secret'
 
 module.exports = {
   BAD_REQUEST,
@@ -10,4 +13,5 @@ module.exports = {
   SERVER_ERROR,
   regexLink,
   SALT_ROUNDS,
+  JWT,
 };

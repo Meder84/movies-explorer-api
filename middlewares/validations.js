@@ -17,15 +17,13 @@ const registerValid = celebrate({
       'any.required': 'Пароль не указан',
       'string.min': 'Пароль должен быть больше 8и символов',
     }),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(regexLink),
+    name: Joi.string().required().min(2).max(30),
   }),
 });
 
 const loginValid = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().custom((value, helper) => {
+    email: Joi.string().required().custom((value, helper) => { // custom - Добавляет пользовательскую функцию
       if (!validator.isEmail(value)) {
         return helper.error('string.notEmail');
       }
@@ -48,26 +46,24 @@ const userUbdateValid = celebrate({
   }),
 });
 
-const userValidId = celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().length(24).hex().required(),
-  }),
-});
-
-const avatarValid = celebrate({
+const movieValid = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(regexLink),
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.string().required(),
+    year: Joi.string().required().pattern(/\d{4}/),
+    description: Joi.string().required(),
+    image: Joi.string().required().pattern(regexLink), // pattern- шаблон,  который может быть либо регулярным выражением, либо схемой joi
+    trailerLink: Joi.string().required().pattern(regexLink),
+    thumbnail: Joi.string().required().pattern(regexLink),
+    owner: Joi.string().required(),
+    movieId: Joi.number().integer().required(),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
   }),
 });
 
-const cardValid = celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(regexLink),
-  }),
-});
-
-const cardIdValid = celebrate({
+const idValid = celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().length(24).hex().required(),
   }),
@@ -76,9 +72,7 @@ const cardIdValid = celebrate({
 module.exports = {
   registerValid,
   loginValid,
-  userValidId,
   userUbdateValid,
-  cardValid,
-  cardIdValid,
-  avatarValid,
+  movieValid,
+  idValid,
 };

@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const { NOT_FOUND } = require('./config/constants');
 const errorHandler = require('./middlewares/errorHandler');
-const { createUser, login } = require('./controllers/users');
+const { createUser, login, logout } = require('./controllers/users');
 const { registerValid, loginValid } = require('./middlewares/validations');
 const auth = require('./middlewares/auth');
 
@@ -20,7 +20,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -30,17 +30,13 @@ app.use(cookieParser());
 app.use(requestLogger); // Логгер запросов нужно подключить до всех обработчиков роутов:
 
 app.use(cors());
-app.get('/crash-test', () => { // Надо удалить этот код после успешного прохождения ревью.
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
 app.post('/signup', registerValid, createUser);
 app.post('/signin', loginValid, login);
+app.post('/signout', logout);
 
 app.use(auth);
 
-app.use('/', require('./routes/cards'));
+app.use('/', require('./routes/movies'));
 app.use('/', require('./routes/users'));
 
 app.use('*', (req, res) => {
