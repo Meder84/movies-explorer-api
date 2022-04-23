@@ -12,7 +12,7 @@ const { createUser, login, logout } = require('./controllers/users');
 const { registerValid, loginValid } = require('./middlewares/validations');
 const auth = require('./middlewares/auth');
 
-const { PORT = 3001 } = process.env;
+const { PORT = 3000 } = process.env;
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
@@ -46,3 +46,4 @@ app.use('*', (req, res) => {
 app.use(errorLogger); // нужно подключить после обработчиков роутов и до обработчиков ошибок:
 app.use(errorHandler);
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+

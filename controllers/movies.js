@@ -1,8 +1,7 @@
-const Move = require('../models/movie');
+const Movie = require('../models/movie');
 const BadRequestError = require('../errors/BadRequest');
 const NotFound = require('../errors/NotFoundError');
 const Forbidden = require('../errors/Forbidden');
-const movie = require('../models/movie');
 
 const createMovie = (req, res, next) => {
   const {
@@ -12,7 +11,7 @@ const createMovie = (req, res, next) => {
   } = req.body;
   const owner = req.user._id;
 
-  Move.create({
+  Movie.create({
     owner, country, director, duration,
     year, description, image, trailer,
     nameRU, nameEN, thumbnail, movieId,
@@ -28,7 +27,7 @@ const createMovie = (req, res, next) => {
 };
 
 const getMovies = (req, res, next) => {
-  Move.find({})
+  Movie.find({})
     .then((movies) => res.send({ data: movies }))
     .catch(next);
 };
@@ -37,15 +36,15 @@ const getMovies = (req, res, next) => {
 const deleteMovie = (req, res, next) => {
   const { _id } = req.params;
 
-  Move.findById(_id)
+  Movie.findById(_id)
     .orFail(() => {
       throw new NotFound('Карточка с указанным _id не найдена!');
     })
     .then((movie) => {
-      if (JSON.stringify(movie.owner) !== JSON.stringify(req.user._id)) {
+      if (movie.owner.toString() !== req.user._id) {
         throw new Forbidden('Невозможно удалить!');
       }
-      return Move.findByIdAndRemove(_id);
+      return Movie.findByIdAndRemove(_id);
     })
     .then((movie) => res.send({ data: movie }))
     .catch(next);
