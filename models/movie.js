@@ -23,7 +23,7 @@ const movieSchema = new Schema({
     required: true,
   },
   image: {
-      type: String,
+    type: String,
     required: true,
     validate: {
       validator(link) {
@@ -54,7 +54,7 @@ const movieSchema = new Schema({
   },
   owner: {
     type: Schema.Types.ObjectId,
-    ref: 'user',  // В это свойство записывают имя модели, на которую мы ссылаемся:
+    ref: 'user', // В это свойство записывают имя модели, на которую мы ссылаемся:
     required: true,
   },
   movieId: {

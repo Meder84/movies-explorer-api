@@ -4,15 +4,14 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-
 const cors = require('cors');
-const { NOT_FOUND } = require('./config/constants');
-const errorHandler = require('./middlewares/errorHandler');
-const { createUser, login, logout } = require('./controllers/users');
-const { registerValid, loginValid } = require('./middlewares/validations');
-const auth = require('./middlewares/auth');
+const limiter = require('./middlewares/limiter');
 
-const { PORT = 3000 } = process.env;
+const router = require('./routes/index');
+
+const errorHandler = require('./middlewares/errorHandler');
+
+const { PORT, DATA_BASE } = require('./config/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
@@ -20,7 +19,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect(DATA_BASE, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -30,20 +29,9 @@ app.use(cookieParser());
 app.use(requestLogger); // Логгер запросов нужно подключить до всех обработчиков роутов:
 
 app.use(cors());
-app.post('/signup', registerValid, createUser);
-app.post('/signin', loginValid, login);
-app.post('/signout', logout);
 
-app.use(auth);
-
-app.use('/', require('./routes/movies'));
-app.use('/', require('./routes/users'));
-
-app.use('*', (req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Страница не найдена!' });
-});
-
+app.use(limiter);
+app.use(router);
 app.use(errorLogger); // нужно подключить после обработчиков роутов и до обработчиков ошибок:
 app.use(errorHandler);
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-

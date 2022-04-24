@@ -8,33 +8,26 @@ const { SALT_ROUNDS } = require('../config/constants');
 const { JWT } = require('../config/constants');
 
 const createUser = (req, res, next) => {
-  const {
-    email, password, name,
-  } = req.body;
-
-  User.findOne({ email })  // найти первое совпадение с полем email
-    .then((user) => {
-      if (user) {
-        throw new ErrorConflict(`Пользователь ${email} уже зарегистрирован`);
-      }
-      return bcrypt.hash(password, SALT_ROUNDS);
-    })
+  const { email, password, name } = req.body;
+  bcrypt.hash(password, SALT_ROUNDS)
     .then((hash) => User.create({ // вернём записанные в базу данные
       name, email, password: hash,
-    }))
-    .then((user) => res.status(200).send({
-      data: {
-        email: user.email,
-        name: user.name,
-      },
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError({ message: err.message }));
-      } else {
-        next(err);
-      }
-    });
+    })
+      .then((user) => {
+        const newUser = user.toObject();
+        delete newUser.password;
+        res.send(newUser);
+      })
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          throw new BadRequestError({ message: err.message });
+        }
+        if (err.code === 11000) {
+          throw new ErrorConflict(`Пользователь ${email} уже зарегистрирован`);
+        }
+        return next(err);
+      }))
+    .catch(next);
 };
 
 const getUsersMe = (req, res, next) => {
@@ -49,8 +42,9 @@ const getUsersMe = (req, res, next) => {
 const updateUser = (req, res, next) => {
   const { name, email } = req.body;
   User.findByIdAndUpdate( // найти первое совпадение с полем user._id
-    // Есть тонкость в работе методов обновления: по умолчанию параметр, который получает на вход обработчик then — это документ до обновления:
-  req.user._id, // user здесь — это документ до обновления
+    // Есть тонкость в работе методов обновления: по умолчанию параметр,
+    // который получает на вход обработчик then — это документ до обновления:
+    req.user._id, // user здесь — это документ до обновления
     { name, email },
     {
       new: true, // обработчик then получит на вход обновлённую запись
@@ -64,12 +58,14 @@ const updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError({ message: err.message }));
+      }
+      if (err.code === 11000) {
+        next(new ErrorConflict(`Пользователь ${email} уже зарегистрирован`));
       } else {
         next(err);
       }
     });
 };
-
 
 const login = (req, res, next) => {
   const { email, password } = req.body;

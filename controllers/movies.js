@@ -6,15 +6,24 @@ const Forbidden = require('../errors/Forbidden');
 const createMovie = (req, res, next) => {
   const {
     country, director, duration,
-    year, description, image, trailer,
+    year, description, image, trailerLink,
     nameRU, nameEN, thumbnail, movieId,
   } = req.body;
   const owner = req.user._id;
 
   Movie.create({
-    owner, country, director, duration,
-    year, description, image, trailer,
-    nameRU, nameEN, thumbnail, movieId,
+    owner,
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    nameRU,
+    nameEN,
+    thumbnail,
+    movieId,
   })
     .then((movie) => res.send({ data: movie }))
     .catch((err) => {
@@ -32,7 +41,6 @@ const getMovies = (req, res, next) => {
     .catch(next);
 };
 
-
 const deleteMovie = (req, res, next) => {
   const { _id } = req.params;
 
@@ -44,9 +52,8 @@ const deleteMovie = (req, res, next) => {
       if (movie.owner.toString() !== req.user._id) {
         throw new Forbidden('Невозможно удалить!');
       }
-      return Movie.findByIdAndRemove(_id);
+      return movie.remove().then(() => res.send({ message: movie }));
     })
-    .then((movie) => res.send({ data: movie }))
     .catch(next);
 };
 
@@ -54,4 +61,4 @@ module.exports = {
   createMovie,
   getMovies,
   deleteMovie,
-}
+};

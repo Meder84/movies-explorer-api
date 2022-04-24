@@ -1,6 +1,13 @@
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
-const { regexLink } = require('../config/constants');
+
+function urlValid(url) {
+  const resultUrlValid = validator.isURL(url);
+  if (!resultUrlValid) {
+    throw new Error('url некорректный!');
+  }
+  return url;
+}
 
 const registerValid = celebrate({
   body: Joi.object().keys({
@@ -23,7 +30,7 @@ const registerValid = celebrate({
 
 const loginValid = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().custom((value, helper) => { // custom - Добавляет пользовательскую функцию
+    email: Joi.string().required().custom((value, helper) => {
       if (!validator.isEmail(value)) {
         return helper.error('string.notEmail');
       }
@@ -53,9 +60,9 @@ const movieValid = celebrate({
     duration: Joi.number().required(),
     year: Joi.string().required().pattern(/\d{4}/),
     description: Joi.string().required(),
-    image: Joi.string().required().pattern(regexLink), // pattern- шаблон,  который может быть либо регулярным выражением, либо схемой joi
-    trailerLink: Joi.string().required().pattern(regexLink),
-    thumbnail: Joi.string().required().pattern(regexLink),
+    image: Joi.string().required().custom(urlValid),
+    trailerLink: Joi.string().required().custom(urlValid),
+    thumbnail: Joi.string().required().custom(urlValid),
     movieId: Joi.number().integer().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
@@ -64,7 +71,7 @@ const movieValid = celebrate({
 
 const idValid = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().length(24).hex().required(),
+    _id: Joi.string().length(24).hex().required(),
   }),
 });
 
