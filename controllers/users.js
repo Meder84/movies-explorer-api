@@ -8,7 +8,7 @@ const { SALT_ROUNDS } = require('../config/constants');
 const { JWT } = require('../config/constants');
 
 const createUser = (req, res, next) => {
-  const { email, password, name } = req.body;
+  const { name, email, password } = req.body;
   bcrypt.hash(password, SALT_ROUNDS)
     .then((hash) => User.create({ // вернём записанные в базу данные
       name, email, password: hash,
@@ -72,29 +72,20 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        JWT,
-        { expiresIn: '7d' },
-      );
-
-      res.cookie('jwt', token, {
-        maxAge: 3600000 * 24 * 7,
-        httpOnly: true,
-      })
-        .send({ message: 'Авторизация прошла успешно!' });
+      const token = jwt.sign({ _id: user._id }, JWT, { expiresIn: '7d' });
+      res.send({ token });
     })
     .catch(next);
 };
 
-const logout = (req, res) => {
-  res.clearCookie('jwt').send({ message: 'Деавторизация прошла успешно!' });
-};
+// const logout = (req, res) => {
+//   res.clearCookie('jwt').send({ message: 'Деавторизация прошла успешно!' });
+// };
 
 module.exports = {
   createUser,
   updateUser,
   getUsersMe,
   login,
-  logout,
+  // logout,
 };
