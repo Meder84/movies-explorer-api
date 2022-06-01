@@ -4,28 +4,19 @@ const NotFound = require('../errors/NotFoundError');
 const Forbidden = require('../errors/Forbidden');
 
 const createMovie = (req, res, next) => {
-  const {
-    country, director, duration,
-    year, description, image, trailerLink,
-    nameRU, nameEN, thumbnail, movieId,
-  } = req.body;
-  const owner = req.user._id;
-
-  Movie.create({
-    owner,
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailerLink,
-    nameRU,
-    nameEN,
-    thumbnail,
-    movieId,
-  })
-    .then((movie) => res.send({ data: movie }))
+  Movie.findOne({ movieId: req.body.movieId })
+    .then((movie) => {
+      if (movie) {
+        throw new Forbidden('Такой фильм уже добавлен в избранное');
+      }
+      return Movie.create({
+        ...req.body,
+        owner: req.user._id,
+      });
+    })
+    .then((movie) => {
+      res.send(movie);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError({ message: err.message }));
@@ -36,7 +27,8 @@ const createMovie = (req, res, next) => {
 };
 
 const getMovies = (req, res, next) => {
-  Movie.find({})
+  Movie.find({ owner: req.user._id })
+    .orFail(() => new NotFound('Нет фильмов в избранном.'))
     .then((movies) => res.send({ data: movies }))
     .catch(next);
 };
@@ -46,7 +38,7 @@ const deleteMovie = (req, res, next) => {
 
   Movie.findById(_id)
     .orFail(() => {
-      throw new NotFound('Карточка с указанным _id не найдена!');
+      throw new NotFound('Фильм с указанным _id не найден!');
     })
     .then((movie) => {
       if (movie.owner.toString() !== req.user._id) {
