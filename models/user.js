@@ -1,4 +1,4 @@
-/* eslint-disable func-names */
+/* eslint-disable linebreak-style */
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const validator = require('validator');

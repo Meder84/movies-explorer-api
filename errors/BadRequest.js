@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 class BadRequestError extends Error {
   constructor(message = 'Некорректные данные!') {
     super(message);

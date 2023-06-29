@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const { Schema, model } = require('mongoose');
 const { regexLink } = require('../config/constants');
 

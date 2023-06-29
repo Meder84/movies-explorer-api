@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 class Forbidden extends Error {
   constructor(message = 'Запрещено') { // У клиента нет прав доступа к содержимому.
     super(message);

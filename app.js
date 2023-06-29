@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -22,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 mongoose.connect(DATA_BASE, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  family: 4,
 });
 
 app.use(helmet());

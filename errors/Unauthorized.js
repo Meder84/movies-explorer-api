@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 class Unauthorized extends Error {
   constructor(message = 'Авторизация не прошла!') {
     super(message);

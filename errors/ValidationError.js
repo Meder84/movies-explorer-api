@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 class ValidationError extends Error {
   constructor(message = 'Некорректные данные!') {
     super(message);
